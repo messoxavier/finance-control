@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AccountType {
+  CHECKING
+  SAVINGS
+  CASH
+  CREDIT_CARD
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model User {
+  id        Int          @id @default(autoincrement())
+  name      String
+  email     String       @unique
+  // manteremos o hash para futura auth; por ora pode ficar vazio no seed
+  passwordHash String?
+
+  accounts  Account[]
+  categories Category[]
+  transactions Transaction[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Account {
+  id        Int        @id @default(autoincrement())
+  userId    Int
+  name      String
+  type      AccountType
+  balance   Decimal     @default(0) @db.Decimal(14, 2)
+
+  user      User       @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model Category {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  name      String
+  type      CategoryType
+
+  user      User         @relation(fields: [userId], references: [id])
+  transactions Transaction[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, name, type]) // evita duplicar categoria por usuário
+  @@index([userId])
+}
+
+model Transaction {
+  id          Int            @id @default(autoincrement())
+  userId      Int
+  accountId   Int
+  categoryId  Int?
+  date        DateTime
+  description String?
+  amount      Decimal         @db.Decimal(14, 2)
+  type        TransactionType
+
+  user        User            @relation(fields: [userId], references: [id])
+  account     Account         @relation(fields: [accountId], references: [id])
+  category    Category?       @relation(fields: [categoryId], references: [id])
+
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([userId])
+  @@index([accountId])
+  @@index([categoryId])
+  @@index([date])
+}
