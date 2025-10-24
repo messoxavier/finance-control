@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import StyledComponentsRegistry from "./styled-registry";
 import { AuthProvider } from "@/context/auth";
 import { GlobalStyles } from "./global-styles";
+import AppShell from "@/components/AppShell";
 
 export const metadata: Metadata = {
   title: "Finance Control",
@@ -14,7 +15,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <StyledComponentsRegistry>
           <GlobalStyles />
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </StyledComponentsRegistry>
       </body>
     </html>

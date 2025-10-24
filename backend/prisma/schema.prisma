@@ -48,6 +48,7 @@ model Account {
 
   user      User       @relation(fields: [userId], references: [id])
   transactions Transaction[]
+  archived  Boolean  @default(false)
 
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
